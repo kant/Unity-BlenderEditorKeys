@@ -1,3 +1,5 @@
+// BlenderEditorKeys by Doug Ty @ dougty.com
+
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
