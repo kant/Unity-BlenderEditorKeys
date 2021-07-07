@@ -134,8 +134,8 @@ static public class BlenderEditorKeys
 		} else if (Event.current.keyCode == KeyCode.Escape) {
 			UseEvent();
 			HandleCancel();
-		// confirm on any key
-		} else if (Event.current.keyCode != KeyCode.None) {
+		// confirm on enter
+		} else if (Event.current.keyCode == KeyCode.Return) {
 			UseEvent();
 			HandleConfirm();
 		}
