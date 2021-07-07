@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 
 [InitializeOnLoad]
 static public class BlenderEditorKeys
@@ -56,6 +57,8 @@ static public class BlenderEditorKeys
 		}
 	}
 
+	static KeyCode[] numberKeys = { KeyCode.Alpha0, KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9, KeyCode.Period, KeyCode.Minus, KeyCode.Backspace };
+
 	static void HandleKeys() {
 		// grab
 		if 			(!isGrabbing && !isRotating && !isScaling && Event.current.keyCode == KeyCode.G) {
@@ -87,7 +90,19 @@ static public class BlenderEditorKeys
 			onZ = !onZ;
 
 		// TO DO: reset position, rotation, scale with Alt + [key]
-		// TO DO: typing numbers for exact values
+
+		// type in exact number to transform by
+		} else if (numberKeys.Contains(Event.current.keyCode)) {
+			string keyStr = Event.current.keyCode.ToString();
+			if (keyStr.StartsWith("Alpha"))
+				exactNumber += keyStr.Substring(5);
+			else if (keyStr == "Period")
+				exactNumber += ".";
+			else if (keyStr == "Minus")
+				exactNumber += "-";
+			else if (keyStr == "Backspace")
+				exactNumber = exactNumber.Substring(0, exactNumber.Length-1);
+
 
 		// snapping
 		} else if (Event.current.keyCode == KeyCode.LeftControl) {
@@ -155,6 +170,8 @@ static public class BlenderEditorKeys
 	static Quaternion[] origRot;
 	static Vector3[] origScale;
 
+	static string exactNumber = "";
+
 	static bool onX;
 	static bool onY;
 	static bool onZ;
@@ -166,6 +183,7 @@ static public class BlenderEditorKeys
 	}
 
 	static void Prepare() {
+		exactNumber = "";
 		ResetAxis();
 
 		mouseStart = Event.current.mousePosition;
@@ -232,6 +250,10 @@ static public class BlenderEditorKeys
 		return center;
 	}
 
+	static bool validExactNumber() {
+		return (exactNumber != "" && exactNumber != "-" && exactNumber != ".");
+	}
+
 
 	/* ----- GRAB ----- */
 	static bool isGrabbing = false;
@@ -292,6 +314,12 @@ static public class BlenderEditorKeys
 					if (!onX && !onY && !onZ) {
 						newPos = posOffset;
 					} else {
+						if (validExactNumber()) {
+							posOffset.x = float.Parse(exactNumber);
+							posOffset.y = float.Parse(exactNumber);
+							posOffset.z = float.Parse(exactNumber);
+						}
+
 						if (onX)
 							newPos.x = posOffset.x;
 						if (onY)
@@ -308,6 +336,12 @@ static public class BlenderEditorKeys
 			} else {
 				Vector3 thisOffset = centerPos - pos;
 				Vector3 diff = grabOffset - thisOffset;
+
+				if (validExactNumber()) {
+					diff.x = float.Parse(exactNumber);
+					diff.y = float.Parse(exactNumber);
+					diff.z = float.Parse(exactNumber);
+				}
 
 				for (int i = 0; i < selected.Length; i++) {
 					selected[i].position = origPos[i];
@@ -370,6 +404,9 @@ static public class BlenderEditorKeys
 		if (Vector3.Cross(mouseStart - center, mousePos - center).z < 0) {
 			ang = 360 - ang;
 		}
+
+		if (validExactNumber())
+			ang = float.Parse(exactNumber);
 
 		ang = SnapAng(ang);
 
@@ -460,8 +497,12 @@ static public class BlenderEditorKeys
 		Vector2 center = getCenter();
 
 		// calculate scale from distance difference
+		// TO DO: handle Tools.pivotMode == PivotMode.Pivot
 		float dist = Vector2.Distance(mousePos, center);
 		float mul = dist / origDist;
+
+		if (validExactNumber())
+			mul = float.Parse(exactNumber);
 
 		mul = SnapMul(mul);
 
