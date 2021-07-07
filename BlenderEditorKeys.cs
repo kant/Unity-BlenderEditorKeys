@@ -499,7 +499,7 @@ static public class BlenderEditorKeys
 
 			Vector3 pivotPos = centerPos;
 			if (Tools.pivotMode == PivotMode.Pivot)
-				pivotPos = selected[i].position;
+				pivotPos = Selection.activeTransform.position;
 
 			selected[i].RotateAround(pivotPos, axis, ang);
 		}
