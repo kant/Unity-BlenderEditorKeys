@@ -214,6 +214,11 @@ static public class BlenderEditorKeys
 	static bool onZ;
 
 	static void ResetAxis() {
+		if (isRotating) {
+			Reset();
+			mouseStart = Event.current.mousePosition;
+		}
+		
 		onX = false;
 		onY = false;
 		onZ = false;
@@ -436,7 +441,6 @@ static public class BlenderEditorKeys
 		return ang;
 	}
 
-	// TO DO: fix initial spazzing when axis is updated (reset mouse start pos?)
 	static void UpdateRotation() {
 		Vector2 mousePos = Event.current.mousePosition;
 		Vector2 center = getCenter();
