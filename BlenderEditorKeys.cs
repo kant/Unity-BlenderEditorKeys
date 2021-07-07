@@ -547,12 +547,19 @@ static public class BlenderEditorKeys
 		return mul;
 	}
 
+	static Vector3 getScalePivotPos(Vector3 pos, Vector3 origScale, Vector3 pivot, Vector3 scale) {
+		Vector3 diff = pos - pivot;
+		float mul = scale.x / origScale.x;
+
+		Vector3 newPos = pivot + diff * mul;
+		return newPos;
+	}
+
 	static void UpdateScale() {
 		Vector2 mousePos = Event.current.mousePosition;
 		Vector2 center = getCenter();
 
 		// calculate scale from distance difference
-		// TO DO: handle Tools.pivotMode == PivotMode.Pivot
 		float dist = Vector2.Distance(mousePos, center);
 		float mul = dist / origDist;
 
@@ -567,26 +574,21 @@ static public class BlenderEditorKeys
 			Vector3 newScale = origScale[i];
 
 			Vector3 diff = origPos[i] - centerPos;
-			Vector3 pos = (diff * mul) + centerPos;
-			Vector3 newPos = origPos[i];
+			Vector3 newPos = (diff * mul) + centerPos;
 
 			if (!onX && !onY && !onZ) {
 				newScale = scale;
-				newPos = pos;
 			} else {
-				if (onX) {
+				if (onX)
 					newScale.x = scale.x;
-					newPos.x = pos.x;
-				}
-				if (onY) {
+				if (onY)
 					newScale.y = scale.y;
-					newPos.y = pos.y;
-				}
-				if (onZ) {
+				if (onZ)
 					newScale.z = scale.z;
-					newPos.z = pos.z;
-				}
 			}
+
+			if (Tools.pivotMode == PivotMode.Pivot)
+				newPos = getScalePivotPos(origPos[i], origScale[i], Selection.activeTransform.position, newScale);
 
 			selected[i].position = newPos;
 			selected[i].localScale = newScale;
