@@ -478,19 +478,19 @@ static public class BlenderEditorKeys
 			} else {
 				// rotate around a single axis
 				if (onX) {
-					if (Tools.pivotRotation == PivotRotation.Global || Tools.pivotMode == PivotMode.Pivot)
+					if (Tools.pivotRotation == PivotRotation.Global)
 						axis = Vector3.right;
 					else
 						axis = localRight;
 				}
 				if (onY) {
-					if (Tools.pivotRotation == PivotRotation.Global || Tools.pivotMode == PivotMode.Pivot)
+					if (Tools.pivotRotation == PivotRotation.Global)
 						axis = Vector3.up;
 					else
 						axis = localUp;
 				}
 				if (onZ) {
-					if (Tools.pivotRotation == PivotRotation.Global || Tools.pivotMode == PivotMode.Pivot)
+					if (Tools.pivotRotation == PivotRotation.Global)
 						axis = Vector3.forward;
 					else
 						axis = localForward;
@@ -499,7 +499,7 @@ static public class BlenderEditorKeys
 
 			Vector3 pivotPos = centerPos;
 			if (Tools.pivotMode == PivotMode.Pivot)
-				pivotPos = Selection.activeTransform.position;
+				pivotPos = origPos[0];
 
 			selected[i].RotateAround(pivotPos, axis, ang);
 		}
