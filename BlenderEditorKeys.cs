@@ -25,8 +25,15 @@ static public class BlenderEditorKeys
 	}
 
 	static void SceneGUI(SceneView sv) {
+		// ignore all events while panning around the scene with right click
+		if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && !isGrabbing && !isRotating && !isScaling){
+			isPanning = true;
+			return;
+		} else if (Event.current.type == EventType.MouseUp && Event.current.button == 1) {
+			isPanning = false;
+
 		// key presses
-		if (Event.current.type == EventType.KeyUp) {
+		} else if (Event.current.type == EventType.KeyUp) {
 			if (isSnapping && Event.current.keyCode == KeyCode.LeftControl) {
 				isSnapping = false;
 				UseEvent();
@@ -35,7 +42,7 @@ static public class BlenderEditorKeys
 			HandleKeys();
 
 		// mouse clicks
-		} else if (Event.current.type == EventType.MouseDown) {
+		} else if (Event.current.type == EventType.MouseDown && (isGrabbing || isRotating || isScaling)) {
 			// confirm on left click
 			if (Event.current.button == 0) {
 				UseEvent();
@@ -60,6 +67,10 @@ static public class BlenderEditorKeys
 	static KeyCode[] numberKeys = { KeyCode.Alpha0, KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9, KeyCode.Period, KeyCode.Minus, KeyCode.Backspace };
 
 	static void HandleKeys() {
+		// ignore key events while camera is panning
+		if (isPanning)
+			return;
+
 		// reset transforms with Shift + [key]
 		if (Event.current.modifiers == EventModifiers.Shift && Event.current.keyCode == KeyCode.G) {
 			ClearTranslate();
@@ -171,6 +182,8 @@ static public class BlenderEditorKeys
 
 
 	/* --- COMMON --- */
+	static bool isPanning;
+	
 	static Transform[] selected;
 	static Vector3 centerPos;
 	static Vector2 mouseStart;
