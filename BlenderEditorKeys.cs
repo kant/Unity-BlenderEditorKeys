@@ -96,20 +96,34 @@ static public class BlenderEditorKeys
 			UseEvent();
 
 		// axis restrictions
-		// TO DO: some indication (unity output log?) of what axis are currently being used
-		// TO DO: double axis lock with shift exclusion (instead of current additive-toggle method)
+		// double axis lock with shift exclusion
 		} else if (Event.current.keyCode == KeyCode.X) {
 			UseEvent();
-			if (isRotating) ResetAxis();
-			onX = !onX;
+			ResetAxis();
+			if (Event.current.modifiers == EventModifiers.Shift) {
+				onX = false;
+				onY = true;
+				onZ = true;
+			} else
+				onX = true;
 		} else if (Event.current.keyCode == KeyCode.Y) {
 			UseEvent();
-			if (isRotating) ResetAxis();
-			onY = !onY;
+			ResetAxis();
+			if (Event.current.modifiers == EventModifiers.Shift) {
+				onX = true;
+				onY = false;
+				onZ = true;
+			} else
+				onY = true;
 		} else if (Event.current.keyCode == KeyCode.Z) {
 			UseEvent();
-			if (isRotating) ResetAxis();
-			onZ = !onZ;
+			ResetAxis();
+			if (Event.current.modifiers == EventModifiers.Shift) {
+				onX = true;
+				onY = true;
+				onZ = false;
+			} else
+				onZ = true;
 
 		// type in exact number to transform by
 		} else if (numberKeys.Contains(Event.current.keyCode) && (isGrabbing || isRotating || isScaling)) {
@@ -183,7 +197,7 @@ static public class BlenderEditorKeys
 
 	/* --- COMMON --- */
 	static bool isPanning;
-	
+
 	static Transform[] selected;
 	static Vector3 centerPos;
 	static Vector2 mouseStart;
