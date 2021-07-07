@@ -60,8 +60,19 @@ static public class BlenderEditorKeys
 	static KeyCode[] numberKeys = { KeyCode.Alpha0, KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9, KeyCode.Period, KeyCode.Minus, KeyCode.Backspace };
 
 	static void HandleKeys() {
+		// reset transforms with Shift + [key]
+		if (Event.current.modifiers == EventModifiers.Shift && Event.current.keyCode == KeyCode.G) {
+			ClearTranslate();
+			UseEvent();
+		} else if (Event.current.modifiers == EventModifiers.Shift && Event.current.keyCode == KeyCode.R) {
+			ClearRotate();
+			UseEvent();
+		} else if (Event.current.modifiers == EventModifiers.Shift && Event.current.keyCode == KeyCode.S) {
+			ClearScale();
+			UseEvent();
+
 		// grab
-		if 			(!isGrabbing && !isRotating && !isScaling && Event.current.keyCode == KeyCode.G) {
+		} else if (!isGrabbing && !isRotating && !isScaling && Event.current.keyCode == KeyCode.G) {
 			StartGrab();
 			UseEvent();
 		// rotate
@@ -370,6 +381,13 @@ static public class BlenderEditorKeys
 		isGrabbing = false;
 	}
 
+	static void ClearTranslate() {
+		Prepare();
+		Save("Clear Translation");
+		for (int i = 0; i < selected.Length; i++)
+			selected[i].position = Vector3.zero;
+	}
+
 
 	/* ----- ROTATE ----- */
 	static bool isRotating = false;
@@ -466,6 +484,13 @@ static public class BlenderEditorKeys
 		isRotating = false;
 	}
 
+	static void ClearRotate() {
+		Prepare();
+		Save("Clear Rotation");
+		for (int i = 0; i < selected.Length; i++)
+			selected[i].rotation = Quaternion.identity;
+	}
+
 
 	/* ----- SCALE ----- */
 	static bool isScaling = false;
@@ -545,5 +570,12 @@ static public class BlenderEditorKeys
 	static void CancelScale() {
 		Reset();
 		isScaling = false;
+	}
+
+	static void ClearScale() {
+		Prepare();
+		Save("Clear Scale");
+		for (int i = 0; i < selected.Length; i++)
+			selected[i].localScale = Vector3.one;
 	}
 }
