@@ -89,10 +89,8 @@ static public class BlenderEditorKeys
 			if (isRotating) ResetAxis();
 			onZ = !onZ;
 
-		// TO DO: reset position, rotation, scale with Alt + [key]
-
 		// type in exact number to transform by
-		} else if (numberKeys.Contains(Event.current.keyCode)) {
+		} else if (numberKeys.Contains(Event.current.keyCode) && (isGrabbing || isRotating || isScaling)) {
 			string keyStr = Event.current.keyCode.ToString();
 			if (keyStr.StartsWith("Alpha"))
 				exactNumber += keyStr.Substring(5);
@@ -102,6 +100,7 @@ static public class BlenderEditorKeys
 				exactNumber += "-";
 			else if (keyStr == "Backspace")
 				exactNumber = exactNumber.Substring(0, exactNumber.Length-1);
+			UseEvent();
 
 
 		// snapping
