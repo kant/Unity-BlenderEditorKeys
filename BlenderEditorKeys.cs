@@ -1,5 +1,7 @@
 // BlenderEditorKeys by Doug Ty @ dougty.com
 
+#if UNITY_EDITOR
+
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
@@ -614,3 +616,5 @@ static public class BlenderEditorKeys
 			selected[i].localScale = Vector3.one;
 	}
 }
+
+#endif
