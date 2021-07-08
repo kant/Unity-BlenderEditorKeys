@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
+[ExecuteInEditMode]
 [InitializeOnLoad]
 static public class BlenderEditorKeys
 {
