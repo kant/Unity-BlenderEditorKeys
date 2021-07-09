@@ -35,41 +35,46 @@ static public class BlenderEditorKeys
 
 	static void SceneGUI(SceneView sv) {
 		// ignore all events while panning around the scene with right click
-		if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && !IsTransforming()){
+		if (!IsTransforming() && Event.current.type == EventType.MouseDown && Event.current.button == 1){
 			isPanning = true;
 			return;
 		} else if (Event.current.type == EventType.MouseUp && Event.current.button == 1) {
 			isPanning = false;
+		}
 
 		// key presses
-		} else if (Event.current.type == EventType.KeyUp) {
-			if (isSnapping && Event.current.keyCode == KeyCode.LeftControl) {
+		if (isSnapping && Event.current.type == EventType.KeyUp) {
+			if (Event.current.keyCode == KeyCode.LeftControl) {
 				isSnapping = false;
 				UseEvent();
 			}
 		} else if (Event.current.type == EventType.KeyDown) {
 			HandleKeys();
-
-		// mouse clicks
-		} else if (Event.current.type == EventType.MouseDown && IsTransforming()) {
-			// confirm on left click
-			if (Event.current.button == 0) {
-				UseEvent();
-				HandleConfirm();
-			// cancel on right click
-			} else if (Event.current.button == 1) {
-				UseEvent();
-				HandleCancel();
-			}
 		}
 
-		// update transformations
-		if (isGrabbing) {
-			UpdateTranslate();
-		} else if (isRotating) {
-			UpdateRotation();
-		} else if (isScaling) {
-			UpdateScale();
+
+		if (IsTransforming()) {
+			// mouse clicks
+			if (Event.current.type == EventType.MouseDown) {
+				// confirm on left click
+				if (Event.current.button == 0) {
+					UseEvent();
+					HandleConfirm();
+				// cancel on right click
+				} else if (Event.current.button == 1) {
+					UseEvent();
+					HandleCancel();
+				}
+			}
+
+			// update transformations
+			if (isGrabbing) {
+				UpdateTranslate();
+			} else if (isRotating) {
+				UpdateRotation();
+			} else if (isScaling) {
+				UpdateScale();
+			}
 		}
 	}
 
@@ -81,86 +86,94 @@ static public class BlenderEditorKeys
 			return;
 
 		// reset transforms with Shift + [key]
-		if (Event.current.modifiers == EventModifiers.Shift && Event.current.keyCode == KeyCode.G) {
-			ClearTranslate();
-			UseEvent();
-		} else if (Event.current.modifiers == EventModifiers.Shift && Event.current.keyCode == KeyCode.R) {
-			ClearRotate();
-			UseEvent();
-		} else if (Event.current.modifiers == EventModifiers.Shift && Event.current.keyCode == KeyCode.S) {
-			ClearScale();
-			UseEvent();
+		if (Event.current.modifiers == EventModifiers.Shift) {
+			if (Event.current.keyCode == KeyCode.G) {
+				ClearTranslate();
+				UseEvent();
+			} else if (Event.current.keyCode == KeyCode.R) {
+				ClearRotate();
+				UseEvent();
+			} else if (Event.current.keyCode == KeyCode.S) {
+				ClearScale();
+				UseEvent();
+			}
+		}
 
-		// grab
-		} else if (!IsTransforming() && Event.current.keyCode == KeyCode.G && Event.current.modifiers == EventModifiers.None) {
-			StartGrab();
-			UseEvent();
-		// rotate
-		} else if 	(!IsTransforming() && Event.current.keyCode == KeyCode.R && Event.current.modifiers == EventModifiers.None) {
-			StartRotate();
-			UseEvent();
-		// scale
-		} else if 	(!IsTransforming() && Event.current.keyCode == KeyCode.S && Event.current.modifiers == EventModifiers.None) {
-			StartScale();
-			UseEvent();
+		if (!IsTransforming()) {
+			if (Event.current.modifiers == EventModifiers.None) {
+				// grab
+				if (Event.current.keyCode == KeyCode.G) {
+					StartGrab();
+					UseEvent();
+				// rotate
+				} else if (Event.current.keyCode == KeyCode.R) {
+					StartRotate();
+					UseEvent();
+				// scale
+				} else if (Event.current.keyCode == KeyCode.S) {
+					StartScale();
+					UseEvent();
+				}
+			}
+		} else {
+			// axis restrictions
+			// double axis lock with shift exclusion
+			if (Event.current.keyCode == KeyCode.X) {
+				UseEvent();
+				ResetAxis();
+				if (Event.current.modifiers == EventModifiers.Shift) {
+					onX = false;
+					onY = true;
+					onZ = true;
+				} else
+					onX = true;
+			} else if (Event.current.keyCode == KeyCode.Y) {
+				UseEvent();
+				ResetAxis();
+				if (Event.current.modifiers == EventModifiers.Shift) {
+					onX = true;
+					onY = false;
+					onZ = true;
+				} else
+					onY = true;
+			} else if (Event.current.keyCode == KeyCode.Z) {
+				UseEvent();
+				ResetAxis();
+				if (Event.current.modifiers == EventModifiers.Shift) {
+					onX = true;
+					onY = true;
+					onZ = false;
+				} else
+					onZ = true;
 
-		// axis restrictions
-		// double axis lock with shift exclusion
-		} else if (IsTransforming() && Event.current.keyCode == KeyCode.X) {
-			UseEvent();
-			ResetAxis();
-			if (Event.current.modifiers == EventModifiers.Shift) {
-				onX = false;
-				onY = true;
-				onZ = true;
-			} else
-				onX = true;
-		} else if (IsTransforming() && Event.current.keyCode == KeyCode.Y) {
-			UseEvent();
-			ResetAxis();
-			if (Event.current.modifiers == EventModifiers.Shift) {
-				onX = true;
-				onY = false;
-				onZ = true;
-			} else
-				onY = true;
-		} else if (IsTransforming() && Event.current.keyCode == KeyCode.Z) {
-			UseEvent();
-			ResetAxis();
-			if (Event.current.modifiers == EventModifiers.Shift) {
-				onX = true;
-				onY = true;
-				onZ = false;
-			} else
-				onZ = true;
-
-		// type in exact number to transform by
-		} else if (numberKeys.Contains(Event.current.keyCode) && IsTransforming()) {
-			string keyStr = Event.current.keyCode.ToString();
-			if (keyStr.StartsWith("Alpha"))
-				exactNumber += keyStr.Substring(5);
-			else if (keyStr == "Period")
-				exactNumber += ".";
-			else if (keyStr == "Minus")
-				exactNumber += "-";
-			else if (keyStr == "Backspace")
-				exactNumber = exactNumber.Substring(0, exactNumber.Length-1);
-			UseEvent();
+			// type in exact number to transform by
+			} else if (numberKeys.Contains(Event.current.keyCode)) {
+				string keyStr = Event.current.keyCode.ToString();
+				if (keyStr.StartsWith("Alpha"))
+					exactNumber += keyStr.Substring(5);
+				else if (keyStr == "Period")
+					exactNumber += ".";
+				else if (keyStr == "Minus")
+					exactNumber += "-";
+				else if (keyStr == "Backspace")
+					exactNumber = exactNumber.Substring(0, exactNumber.Length-1);
+				UseEvent();
 
 
-		// snapping
-		} else if (IsTransforming() && Event.current.keyCode == KeyCode.LeftControl) {
-			isSnapping = true;
-			UseEvent();
+			// snapping
+			} else if (Event.current.keyCode == KeyCode.LeftControl) {
+				isSnapping = true;
+				UseEvent();
 
-		// cancel on escape
-		} else if (IsTransforming() && Event.current.keyCode == KeyCode.Escape) {
-			UseEvent();
-			HandleCancel();
-		// confirm on enter
-		} else if (IsTransforming() && Event.current.keyCode == KeyCode.Return) {
-			UseEvent();
-			HandleConfirm();
+			// cancel on escape
+			} else if (Event.current.keyCode == KeyCode.Escape) {
+				UseEvent();
+				HandleCancel();
+			// confirm on enter
+			} else if (Event.current.keyCode == KeyCode.Return) {
+				UseEvent();
+				HandleConfirm();
+			}
 		}
 	}
 
