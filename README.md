@@ -38,6 +38,9 @@ Please refer to the Unity docs on how to change these settings
 You can also hold `Ctrl` for temporary snapping
 
 ## Known Issues
+ - Editor 'Heirarchy' or 'Scene View' windows must be the active UI element in order for hotkeys to register
+   - If you press a hotkey and nothing happens, click inside some empty space in either of these panels first
  - Reset transform modifier key must be `Shift` as the Unity editor seems to override and consume `Alt` keypresses  
  - Unity doesn't support scaling along global axis (skewing) like Blender does (not even the Unity gizmo will do this)  
  - Vertex/surface snapping and look-at rotation are not supported (too complex, use the Unity gizmo for these)  
+ - If compile times increase after installing this, make sure it's in your `Assets/Editor` folder and not just `Assets`!
