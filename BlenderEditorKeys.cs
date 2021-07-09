@@ -379,9 +379,9 @@ static public class BlenderEditorKeys
 						newPos = posOffset;
 					} else {
 						if (validExactNumber()) {
-							posOffset.x = float.Parse(exactNumber);
-							posOffset.y = float.Parse(exactNumber);
-							posOffset.z = float.Parse(exactNumber);
+							posOffset.x = origPos[i].x + float.Parse(exactNumber);
+							posOffset.y = origPos[i].y + float.Parse(exactNumber);
+							posOffset.z = origPos[i].z + float.Parse(exactNumber);
 						}
 
 						if (onX)
