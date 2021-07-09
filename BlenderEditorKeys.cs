@@ -29,9 +29,13 @@ static public class BlenderEditorKeys
 		}
 	}
 
+	static bool IsTransforming() {
+		return (isGrabbing || isRotating || isScaling);
+	}
+
 	static void SceneGUI(SceneView sv) {
 		// ignore all events while panning around the scene with right click
-		if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && !isGrabbing && !isRotating && !isScaling){
+		if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && !IsTransforming()){
 			isPanning = true;
 			return;
 		} else if (Event.current.type == EventType.MouseUp && Event.current.button == 1) {
@@ -47,7 +51,7 @@ static public class BlenderEditorKeys
 			HandleKeys();
 
 		// mouse clicks
-		} else if (Event.current.type == EventType.MouseDown && (isGrabbing || isRotating || isScaling)) {
+		} else if (Event.current.type == EventType.MouseDown && IsTransforming()) {
 			// confirm on left click
 			if (Event.current.button == 0) {
 				UseEvent();
@@ -88,21 +92,21 @@ static public class BlenderEditorKeys
 			UseEvent();
 
 		// grab
-		} else if (!isGrabbing && !isRotating && !isScaling && Event.current.keyCode == KeyCode.G) {
+		} else if (!IsTransforming() && Event.current.keyCode == KeyCode.G && Event.current.modifiers == EventModifiers.None) {
 			StartGrab();
 			UseEvent();
 		// rotate
-		} else if 	(!isGrabbing && !isRotating && !isScaling && Event.current.keyCode == KeyCode.R) {
+		} else if 	(!IsTransforming() && Event.current.keyCode == KeyCode.R && Event.current.modifiers == EventModifiers.None) {
 			StartRotate();
 			UseEvent();
 		// scale
-		} else if 	(!isGrabbing && !isRotating && !isScaling && Event.current.keyCode == KeyCode.S) {
+		} else if 	(!IsTransforming() && Event.current.keyCode == KeyCode.S && Event.current.modifiers == EventModifiers.None) {
 			StartScale();
 			UseEvent();
 
 		// axis restrictions
 		// double axis lock with shift exclusion
-		} else if (Event.current.keyCode == KeyCode.X) {
+		} else if (IsTransforming() && Event.current.keyCode == KeyCode.X) {
 			UseEvent();
 			ResetAxis();
 			if (Event.current.modifiers == EventModifiers.Shift) {
@@ -111,7 +115,7 @@ static public class BlenderEditorKeys
 				onZ = true;
 			} else
 				onX = true;
-		} else if (Event.current.keyCode == KeyCode.Y) {
+		} else if (IsTransforming() && Event.current.keyCode == KeyCode.Y) {
 			UseEvent();
 			ResetAxis();
 			if (Event.current.modifiers == EventModifiers.Shift) {
@@ -120,7 +124,7 @@ static public class BlenderEditorKeys
 				onZ = true;
 			} else
 				onY = true;
-		} else if (Event.current.keyCode == KeyCode.Z) {
+		} else if (IsTransforming() && Event.current.keyCode == KeyCode.Z) {
 			UseEvent();
 			ResetAxis();
 			if (Event.current.modifiers == EventModifiers.Shift) {
@@ -131,7 +135,7 @@ static public class BlenderEditorKeys
 				onZ = true;
 
 		// type in exact number to transform by
-		} else if (numberKeys.Contains(Event.current.keyCode) && (isGrabbing || isRotating || isScaling)) {
+		} else if (numberKeys.Contains(Event.current.keyCode) && IsTransforming()) {
 			string keyStr = Event.current.keyCode.ToString();
 			if (keyStr.StartsWith("Alpha"))
 				exactNumber += keyStr.Substring(5);
@@ -145,23 +149,23 @@ static public class BlenderEditorKeys
 
 
 		// snapping
-		} else if (Event.current.keyCode == KeyCode.LeftControl) {
+		} else if (IsTransforming() && Event.current.keyCode == KeyCode.LeftControl) {
 			isSnapping = true;
 			UseEvent();
 
 		// cancel on escape
-		} else if (Event.current.keyCode == KeyCode.Escape) {
+		} else if (IsTransforming() && Event.current.keyCode == KeyCode.Escape) {
 			UseEvent();
 			HandleCancel();
 		// confirm on enter
-		} else if (Event.current.keyCode == KeyCode.Return) {
+		} else if (IsTransforming() && Event.current.keyCode == KeyCode.Return) {
 			UseEvent();
 			HandleConfirm();
 		}
 	}
 
 	static void UseEvent() {
-		if (isGrabbing || isRotating || isScaling)
+		if (IsTransforming())
 			Event.current.Use();
 	}
 
