@@ -2,7 +2,8 @@
 Single-file, drop-in Unity Editor script to give you Blender-like transformation hotkeys and functionality!
 
 ## Installation
-1. Download `BlenderEditorKeys.cs` and place it in your project's `Assets` folder
+1. Download `BlenderEditorKeys.cs` and place it in your project's `Assets/Editor` folder
+	- Create a new empty `Editor` folder if one doesn't already exist
 2. That's it! The script should automatically run when the editor is open
 
 **Recommended key bindings in `Edit > Shortcuts`**:
