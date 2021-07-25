@@ -439,7 +439,7 @@ static public class BlenderEditorKeys
 		Prepare();
 		Save("Clear Translation");
 		for (int i = 0; i < selected.Length; i++)
-			selected[i].position = Vector3.zero;
+			selected[i].localPosition = Vector3.zero;
 	}
 
 
@@ -541,7 +541,7 @@ static public class BlenderEditorKeys
 		Prepare();
 		Save("Clear Rotation");
 		for (int i = 0; i < selected.Length; i++)
-			selected[i].rotation = Quaternion.identity;
+			selected[i].localRotation = Quaternion.identity;
 	}
 
 
